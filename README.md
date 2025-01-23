@@ -53,9 +53,9 @@ services:
       - ZBX_DB_CERT_FILE=${ZBX_DB_CERT_FILE}
       - ZBX_DB_CA_FILE=${ZBX_DB_CA_FILE}
       - ZBX_DB_VERIFY_HOST=true
-    networks:
-      zabbix-net:
-        ipv4_address: <IP>
+    # networks:
+      # zabbix-net:
+        # ipv4_address: <IP>
 
   zabbix-server:
     image: <user>/zabbix-server-mysql
