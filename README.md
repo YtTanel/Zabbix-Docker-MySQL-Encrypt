@@ -53,9 +53,10 @@ services:
       - ZBX_DB_CERT_FILE=${ZBX_DB_CERT_FILE}
       - ZBX_DB_CA_FILE=${ZBX_DB_CA_FILE}
       - ZBX_DB_VERIFY_HOST=true
-    # networks:
-      # zabbix-net:
-        # ipv4_address: <IP>
+    #networks:
+      #your-net:
+        #ipv4_address: <IP>
+
 
   zabbix-server:
     image: <user>/zabbix-server-mysql
@@ -75,9 +76,9 @@ services:
       - ZBX_DBTLSKEYFILE=${ZBX_DBTLSKEYFILE}
       - DBTLSCIPHER13=${DBTLSCIPHER13}
       - ZBX_ALLOWUNSUPPORTEDDBVERSIONS=${ZBX_ALLOWUNSUPPORTEDDBVERSIONS}
-    # networks:
-      # zabbix-net:
-        # ipv4_address: <IP>
+    #networks:
+      #your-net:
+        #ipv4_address: <IP>
 
   mysql-server:
     image: <user>/mysql-server
@@ -91,15 +92,16 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     command: --log-bin-trust-function-creators=ON
-    # networks:
-      # zabbix-net:
-        # ipv4_address: <IP>
     volumes:
       - mysql-data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    #networks:
+      #your-net:
+        #ipv4_address: <IP>
 
-# networks:
-  # zabbix-net:
+#networks:
+  #your-net:
+    #external: true
 
 volumes:
   mysql-data:
