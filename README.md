@@ -1,4 +1,4 @@
-# Zabbix MySQL encryption 
+# Zabbix MySQL Encryption 
 Zabbix MySQL encryption using Dockerfiles and Docker Compose. This requires CA, keys and certs. Edit the Dockerfiles and my.cnfs CA, key and certificate paths to your needs. This repository shows the way I did it, may not be perfect but it worked. Dockerfiles are used to copy CA, keys, cert and my.cnf files to containers, set permissions and ownerships.
 
 ## Docker Compose, .env and init.sql files
