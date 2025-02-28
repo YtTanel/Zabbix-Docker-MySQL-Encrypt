@@ -114,3 +114,87 @@ ALTER USER 'zabbix'@'%' REQUIRE X509;
 GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'%';
 FLUSH PRIVILEGES;
 ```
+
+## Docker Compose High Availability version
+
+```yaml
+services:
+  zabbix-frontend:
+    image: <user>/zabbix-web-apache-mysql
+    build:
+      context: ./zabbix-web/
+    depends_on:
+      - zabbix-server
+    container_name: zabbix-frontend
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      - DB_SERVER_HOST=${DB_SERVER_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - PHP_TZ=${PHP_TZ}
+      - ZBX_DB_ENCRYPTION=true
+      - ZBX_DB_KEY_FILE=${ZBX_DB_KEY_FILE}
+      - ZBX_DB_CERT_FILE=${ZBX_DB_CERT_FILE}
+      - ZBX_DB_CA_FILE=${ZBX_DB_CA_FILE}
+      - ZBX_DB_VERIFY_HOST=true
+    networks:
+      zabbix-net:
+        ipv4_address: <IP>
+
+
+  zabbix-server:
+    image: <user>/zabbix-server-mysql
+    build:
+      context: ./zabbix-server-mysql/
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: vip
+    depends_on:
+      - mysql-server
+    restart: unless-stopped
+    environment:
+      - DB_SERVER_HOST=${DB_SERVER_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - ZBX_DBTLSCONNECT=verify_full
+      - ZBX_DBTLSCAFILE=${ZBX_DBTLSCAFILE}
+      - ZBX_DBTLSCERTFILE=${ZBX_DBTLSCERTFILE}
+      - ZBX_DBTLSKEYFILE=${ZBX_DBTLSKEYFILE}
+      - DBTLSCIPHER13=${DBTLSCIPHER13}
+      - ZBX_ALLOWUNSUPPORTEDDBVERSIONS=${ZBX_ALLOWUNSUPPORTEDDBVERSIONS}
+      - ZBX_AUTOHANODENAME=fqdn
+      - ZBX_AUTONODEADDRESS=fqdn
+    networks:
+      - zabbix-net
+        
+
+  mysql-server:
+    image: <user>/mysql-server
+    build:
+      context: ./mysql-server/
+    container_name: mysql-server
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    command: --log-bin-trust-function-creators=ON
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      zabbix-net:
+        ipv4_address: <IP>
+
+networks:
+  zabbix-net:
+    external: true
+
+volumes:
+  mysql-data:
+```
